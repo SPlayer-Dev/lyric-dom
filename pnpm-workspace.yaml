@@ -1,18 +1,18 @@
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
-  - '@vitest/mocker@5.0.0'
-  - '@vitest/spy@5.0.0'
+  - "@vitest/mocker@5.0.0"
+  - "@vitest/spy@5.0.0"
   - happy-dom@20.13.2
   - vitest@5.0.0
-  - '@biomejs/biome@2.5.12'
-  - '@biomejs/cli-darwin-arm64@2.5.12'
-  - '@biomejs/cli-darwin-x64@2.5.12'
-  - '@biomejs/cli-linux-arm64-musl@2.5.12'
-  - '@biomejs/cli-linux-arm64@2.5.12'
-  - '@biomejs/cli-linux-x64-musl@2.5.12'
-  - '@biomejs/cli-linux-x64@2.5.12'
-  - '@biomejs/cli-win32-arm64@2.5.12'
-  - '@biomejs/cli-win32-x64@2.5.12'
-  - lyric-kit@0.2.0 || 0.3.0 || 0.3.1 || 0.5.0
+  - "@biomejs/biome@2.5.12"
+  - "@biomejs/cli-darwin-arm64@2.5.12"
+  - "@biomejs/cli-darwin-x64@2.5.12"
+  - "@biomejs/cli-linux-arm64-musl@2.5.12"
+  - "@biomejs/cli-linux-arm64@2.5.12"
+  - "@biomejs/cli-linux-x64-musl@2.5.12"
+  - "@biomejs/cli-linux-x64@2.5.12"
+  - "@biomejs/cli-win32-arm64@2.5.12"
+  - "@biomejs/cli-win32-x64@2.5.12"
+  - lyric-kit@0.2.0 || 0.3.0 || 0.3.1 || 0.5.0 || 0.6.0
 onlyBuiltDependencies: ["esbuild"]

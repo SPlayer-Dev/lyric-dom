@@ -53,8 +53,6 @@ const buildMainLayer = (
     return { measurements: [], animTargets: [] };
   }
   const result = buildWordSpans(line.words, mainDiv, {
-    enableEmphasizeEffect: options.enableEmphasizeEffect,
-    emphasizeMinDuration: options.emphasizeMinDuration ?? 1000,
     showRuby: options.showRuby,
     showWordRoman,
   });

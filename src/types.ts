@@ -23,12 +23,6 @@ export interface LyricWord extends LyricSpan {
   /** 注音列表（如日语假名、拼音标注） */
   ruby?: LyricSpan[];
   /**
-   * 该音节结尾是否紧跟空格（用于西文/英文排版与卡拉OK渲染）
-   * 单词本身保持纯净（trim），由该属性控制词间空格
-   * @default false
-   */
-  endsWithSpace?: boolean;
-  /**
    * 空拍数量（用于前奏/间奏打拍动效）
    * @default 0
    */
@@ -183,16 +177,6 @@ export interface RendererConfig {
    */
   enableScale: boolean;
   /**
-   * 是否启用长音节强调动效
-   * @default false
-   */
-  enableEmphasizeEffect: boolean;
-  /**
-   * 判定长音节强调动画的最小持续时间阈值（毫秒）
-   * @default 1000
-   */
-  emphasizeMinDuration: number;
-  /**
    * 是否显示翻译歌词
    * @default true
    */
@@ -256,10 +240,4 @@ export interface WordAnimTarget {
   element: HTMLElement;
   /** 单词数据 */
   word: LyricWord;
-  /** 是否达到强调效果触发条件 */
-  isEmphasize: boolean;
-  /** 强调效果下的拆分字符元素序列 */
-  charElements: HTMLElement[];
-  /** 是否为该行最后一个有效单词 */
-  isLastWord: boolean;
 }

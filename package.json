@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "lyric-dom",
   "version": "0.1.2",
   "description": "A framework-agnostic karaoke lyrics renderer for the browser, built on the native DOM API with zero runtime dependencies.",
@@ -58,7 +59,7 @@
     "@biomejs/biome": "^2.5.12",
     "@tsdown/css": "^0.22.14",
     "happy-dom": "^20.13.2",
-    "lyric-kit": "^0.5.0",
+    "lyric-kit": "^0.6.0",
     "tsdown": "^0.22.14",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",

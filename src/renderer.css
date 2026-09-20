@@ -198,32 +198,6 @@
     }
   }
 
-  /* 强调单词包裹层 */
-  & > span.lp-emp-wrapper {
-    display: inline-block;
-    white-space: pre;
-    vertical-align: middle;
-    /* 为缩放辉光溢出预留空间，负 margin 抵消布局影响 */
-    padding: 1em;
-    margin: -1em;
-
-    &.lp-word-roman {
-      display: inline-flex;
-      vertical-align: bottom;
-      margin-inline-end: calc(-1em + var(--lp-word-roman-gap, 0.3em));
-
-      &:last-child {
-        margin-inline-end: -1em;
-      }
-    }
-
-    & > span {
-      display: inline-block;
-      padding: 1em;
-      margin: -1em;
-    }
-  }
-
   .lp-word-text {
     display: inline-block;
     white-space: pre;
@@ -241,12 +215,6 @@
     white-space: nowrap;
     user-select: none;
     pointer-events: none;
-    text-align: inherit;
-  }
-
-  .lp-emp-chars {
-    display: inline-block;
-    white-space: pre;
     text-align: inherit;
   }
 }

@@ -2,7 +2,6 @@
 
 import type { LyricLine, LyricSpan, LyricWord, WordAnimTarget, WordMeasurement } from "../types";
 import { chunkAndSplitLyricWords, needsSpaceBetween } from "../utils/split-words";
-import { shouldChunkEmphasize } from "./emphasize";
 
 export type { WordAnimTarget, WordMeasurement };
 
@@ -11,12 +10,9 @@ export interface BuildResult {
   measurements: WordMeasurement[];
   animTargets: WordAnimTarget[];
 }
+
 /** 单词构建选项 */
 export interface WordBuildOptions {
-  /** 是否启用强调效果 */
-  enableEmphasizeEffect: boolean;
-  /** 触发强调效果的最小持续时间（毫秒） */
-  emphasizeMinDuration: number;
   /** 是否显示词内注音 */
   showRuby: boolean;
   /** 是否显示逐字音译 */
@@ -35,49 +31,31 @@ export const buildWordSpans = (
   mainDiv: HTMLDivElement,
   options: WordBuildOptions,
 ): BuildResult => {
-  const {
-    enableEmphasizeEffect: enableEmphasize,
-    emphasizeMinDuration,
-    showRuby,
-    showWordRoman = false,
-  } = options;
+  const { showRuby, showWordRoman = false } = options;
   const chunks = chunkAndSplitLyricWords(words);
   const measurements: WordMeasurement[] = [];
   const animTargets: WordAnimTarget[] = [];
 
   const hasWhitespaceInfo = chunks.some((chunk) => {
     if (Array.isArray(chunk)) {
-      return chunk.some((word) => word.word !== word.word.trim() || word.endsWithSpace);
+      return chunk.some((word) => word.word !== word.word.trim());
     }
-    return chunk.word !== chunk.word.trim() || chunk.endsWithSpace;
+    return chunk.word !== chunk.word.trim();
   });
-
-  const nonEmptyChunks: (LyricWord | LyricWord[])[] = chunks.filter((c) =>
-    Array.isArray(c) ? c.some((w) => w.word.trim()) : c.word.trim(),
-  );
-  const lastChunk = nonEmptyChunks[nonEmptyChunks.length - 1];
 
   if (!hasWhitespaceInfo) {
     let previousText = "";
     for (const chunk of chunks) {
       const atoms = Array.isArray(chunk) ? chunk : [chunk];
-      const isEmp =
-        enableEmphasize && atoms.length > 0 && shouldChunkEmphasize(atoms, emphasizeMinDuration);
-      const isLast = chunk === lastChunk;
-
       const firstText = atoms[0]?.word.trim();
       if (firstText && needsSpaceBetween(previousText, firstText)) {
         mainDiv.appendChild(document.createTextNode(" "));
       }
 
-      if (isEmp) {
-        buildEmphasizedChunk(atoms, mainDiv, measurements, animTargets, isLast, showWordRoman);
-      } else {
-        for (const atom of atoms) {
-          const text = atom.word.trim();
-          if (!text) continue;
-          appendWordSpan(atom, mainDiv, measurements, animTargets, showRuby, showWordRoman);
-        }
+      for (const atom of atoms) {
+        const text = atom.word.trim();
+        if (!text) continue;
+        appendWordSpan(atom, mainDiv, measurements, animTargets, showRuby, showWordRoman);
       }
       const lastAtom = atoms[atoms.length - 1];
       if (lastAtom) previousText = lastAtom.word.trim();
@@ -85,14 +63,12 @@ export const buildWordSpans = (
     return { measurements, animTargets };
   }
 
-  // 正常路径（包含显式空格或 endsWithSpace 标记）
+  // 正常路径（包含显式空格）
   let previousText = "";
 
   for (const chunk of chunks) {
     if (Array.isArray(chunk)) {
       const mergedText = chunk.map((word) => word.word).join("");
-      const isEmp = enableEmphasize && shouldChunkEmphasize(chunk, emphasizeMinDuration);
-      const isLast = chunk === lastChunk;
 
       if (mergedText.trimStart() !== mergedText) {
         mainDiv.appendChild(document.createTextNode(" "));
@@ -100,20 +76,12 @@ export const buildWordSpans = (
         mainDiv.appendChild(document.createTextNode(" "));
       }
 
-      if (isEmp) {
-        buildEmphasizedChunk(chunk, mainDiv, measurements, animTargets, isLast, showWordRoman);
-      } else {
-        for (let wIdx = 0; wIdx < chunk.length; wIdx++) {
-          const word = chunk[wIdx];
-          appendWordSpan(word, mainDiv, measurements, animTargets, showRuby, showWordRoman);
-          if (word.endsWithSpace && wIdx < chunk.length - 1) {
-            mainDiv.appendChild(document.createTextNode(" "));
-          }
-        }
+      for (let wIdx = 0; wIdx < chunk.length; wIdx++) {
+        const word = chunk[wIdx];
+        appendWordSpan(word, mainDiv, measurements, animTargets, showRuby, showWordRoman);
       }
 
-      const lastWord = chunk[chunk.length - 1];
-      if (mergedText.trimEnd() !== mergedText || lastWord?.endsWithSpace) {
+      if (mergedText.trimEnd() !== mergedText) {
         mainDiv.appendChild(document.createTextNode(" "));
         previousText = "";
       } else {
@@ -124,8 +92,6 @@ export const buildWordSpans = (
       previousText = "";
     } else {
       const text = chunk.word;
-      const isEmp = enableEmphasize && shouldChunkEmphasize([chunk], emphasizeMinDuration);
-      const isLast = chunk === lastChunk;
 
       if (text.trimStart() !== text) {
         mainDiv.appendChild(document.createTextNode(" "));
@@ -133,13 +99,9 @@ export const buildWordSpans = (
         mainDiv.appendChild(document.createTextNode(" "));
       }
 
-      if (isEmp) {
-        buildEmphasizedChunk([chunk], mainDiv, measurements, animTargets, isLast, showWordRoman);
-      } else {
-        appendWordSpan(chunk, mainDiv, measurements, animTargets, showRuby, showWordRoman);
-      }
+      appendWordSpan(chunk, mainDiv, measurements, animTargets, showRuby, showWordRoman);
 
-      if (text.trimEnd() !== text || chunk.endsWithSpace) {
+      if (text.trimEnd() !== text) {
         mainDiv.appendChild(document.createTextNode(" "));
         previousText = "";
       } else {
@@ -184,8 +146,8 @@ const appendWordSpan = (
 
     const romanEl = document.createElement("span");
     romanEl.className = "lp-roman-word";
-    const romanText = word.romanWord?.trim();
-    romanEl.textContent = romanText && romanText.length > 0 ? romanText : "\u00A0";
+    const roman = word.romanWord?.trim();
+    romanEl.textContent = roman && roman.length > 0 ? roman : "\u00A0";
     span.appendChild(romanEl);
   } else {
     if (ruby?.length) {
@@ -197,13 +159,7 @@ const appendWordSpan = (
 
   mainDiv.appendChild(span);
   measurements.push({ element: span, word, width: 0, fadeWidth: 0 });
-  animTargets.push({
-    element: span,
-    word,
-    isEmphasize: false,
-    charElements: [],
-    isLastWord: false,
-  });
+  animTargets.push({ element: span, word });
 };
 
 /**
@@ -236,77 +192,9 @@ const buildRubyContent = (span: HTMLSpanElement, text: string, ruby: LyricSpan[]
 };
 
 /**
- * 构建强调单词 chunk
- * @param atoms - 合并前的同组单词
- * @param mainDiv - 挂载目标容器
- * @param measurements - 测量数据输出数组
- * @param animTargets - 动画目标输出数组
- * @param isLastWord - 是否为行末单词
- * @param showWordRoman - 是否渲染逐字音译
- */
-const buildEmphasizedChunk = (
-  atoms: LyricWord[],
-  mainDiv: HTMLDivElement,
-  measurements: WordMeasurement[],
-  animTargets: WordAnimTarget[],
-  isLastWord: boolean,
-  showWordRoman: boolean,
-) => {
-  const mergedWord: LyricWord = {
-    word: atoms.map((a) => a.word).join(""),
-    startTime: Math.min(...atoms.map((a) => a.startTime)),
-    endTime: Math.max(...atoms.map((a) => a.endTime)),
-    endsWithSpace: atoms[atoms.length - 1]?.endsWithSpace,
-  };
-  const trimmed = mergedWord.word.trim();
-
-  const wrapper = document.createElement("span");
-  wrapper.className = "lp-emp-wrapper";
-
-  const charElements: HTMLElement[] = [];
-  if (showWordRoman) {
-    wrapper.classList.add("lp-word-roman");
-
-    const charsContainer = document.createElement("span");
-    charsContainer.className = "lp-emp-chars";
-    for (const char of trimmed) {
-      const charSpan = document.createElement("span");
-      charSpan.textContent = char;
-      charsContainer.appendChild(charSpan);
-      charElements.push(charSpan);
-    }
-    wrapper.appendChild(charsContainer);
-
-    const romanEl = document.createElement("span");
-    romanEl.className = "lp-roman-word";
-    const romanParts = atoms.map((a) => a.romanWord?.trim()).filter(Boolean);
-    const romanText = romanParts.length > 0 ? romanParts.join(" ") : "";
-    romanEl.textContent = romanText.length > 0 ? romanText : "\u00A0";
-    wrapper.appendChild(romanEl);
-  } else {
-    for (const char of trimmed) {
-      const charSpan = document.createElement("span");
-      charSpan.textContent = char;
-      wrapper.appendChild(charSpan);
-      charElements.push(charSpan);
-    }
-  }
-
-  mainDiv.appendChild(wrapper);
-  measurements.push({ element: wrapper, word: mergedWord, width: 0, fadeWidth: 0 });
-  animTargets.push({
-    element: wrapper,
-    word: mergedWord,
-    isEmphasize: true,
-    charElements,
-    isLastWord,
-  });
-};
-
-/**
  * 测量所有单词的宽度并设置 CSS 掩码
- * 采用读写分离策略：第一遍批量读取所有 DOM 尺寸（触发一次回流），
- * 第二遍批量写入所有 CSS mask 样式（零回流），避免逐词读写交替导致的 N 次强制回流。
+ * 采用读写分离策略：第一遍批量读取所有 DOM 尺寸（合并为一次回流），
+ * 第二遍批量写入所有 CSS mask 样式（零回流）。
  * @param wordMeasurements - 每行的单词测量数据
  * @param fadeRatio - 渐变区域宽度比例
  * @param lines - 歌词行数组，提供行起始时间
@@ -316,37 +204,25 @@ export const measureAndApplyWordMasks = (
   fadeRatio: number,
   lines?: LyricLine[],
 ) => {
-  // 临时存储每个 measurement 的 padding，供第二遍使用
-  const paddings: number[][] = new Array(wordMeasurements.length);
-
   // 批量读取 DOM 尺寸（合并回流）
   for (let i = 0; i < wordMeasurements.length; i++) {
     const lineMeasurements = wordMeasurements[i];
-    if (!lineMeasurements) {
-      paddings[i] = [];
-      continue;
-    }
-    paddings[i] = new Array(lineMeasurements.length);
+    if (!lineMeasurements) continue;
     for (let j = 0; j < lineMeasurements.length; j++) {
       const m = lineMeasurements[j];
       const el = m.element;
-      const padding = el.classList.contains("lp-emp-wrapper")
-        ? Number.parseFloat(getComputedStyle(el).paddingLeft) || 0
-        : 0;
-      paddings[i][j] = padding;
-      m.width = (el.clientWidth || 1) - padding * 2;
-      m.fadeWidth = ((el.clientHeight || 16) - padding * 2) * fadeRatio;
+      m.width = el.clientWidth || 1;
+      m.fadeWidth = (el.clientHeight || 16) * fadeRatio;
     }
   }
 
-  // 批量写入 CSS mask 样式
+  // 批量写入 CSS mask 样式（零回流）
   for (let i = 0; i < wordMeasurements.length; i++) {
     const lineMeasurements = wordMeasurements[i];
     const lineStart = lines?.[i]?.startTime ?? 0;
     if (!lineMeasurements) continue;
     for (let j = 0; j < lineMeasurements.length; j++) {
       const measurement = lineMeasurements[j];
-      const padding = paddings[i][j];
       const elementWidth = measurement.width;
       const gradientWidth = measurement.fadeWidth;
       const totalAspect = 2 + gradientWidth / elementWidth;
@@ -365,8 +241,8 @@ export const measureAndApplyWordMasks = (
         Math.max(lineStart, wordData.startTime - preRoll),
       );
       const adjustedDuration = Math.max(1, wordData.endTime - adjustedStart);
-      const startPos = padding - totalMaskWidth;
-      const endPos = padding;
+      const startPos = -totalMaskWidth;
+      const endPos = 0;
       const speed = totalMaskWidth / adjustedDuration;
       const maskPosition = Number.isFinite(speed)
         ? `clamp(${startPos}px,calc(${startPos}px + (var(--t,${lineStart}) - ${adjustedStart}) * ${speed}px),${endPos}px) 0px,left top`

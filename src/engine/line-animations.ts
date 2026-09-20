@@ -5,7 +5,7 @@
  */
 
 import type { LyricLine } from "../types";
-import { createEmphasizeAnimations, createFloatAnimation } from "./emphasize";
+import { createFloatAnimation } from "./float";
 import type { WordAnimTarget } from "./word-builder";
 
 /** 行激活时的动画创建选项 */
@@ -14,8 +14,6 @@ export interface ActivateOptions {
   playing: boolean;
   /** 是否启用逐字上浮动画 */
   float: boolean;
-  /** 是否启用强调效果 */
-  emphasize: boolean;
 }
 
 /**
@@ -66,41 +64,27 @@ export class LineAnimationController {
   ) => {
     // 清理该行旧动画（上一次停用时保留的）
     const oldAnims = this.animations.get(lineIndex);
-    if (oldAnims)
+    if (oldAnims) {
       for (const anim of oldAnims) {
         anim.onfinish = null;
         anim.cancel();
       }
+    }
 
-    if (!targets?.length || (!options.float && !options.emphasize)) return;
+    if (!targets?.length || !options.float) return;
 
     const relativeTime = Math.max(0, currentTime - line.startTime);
     const anims: Animation[] = [];
 
     for (const target of targets) {
-      // 基础上浮动画
-      if (options.float) {
-        anims.push(
-          createFloatAnimation(
-            target.element,
-            target.word.startTime - line.startTime,
-            target.word.endTime - target.word.startTime,
-            line.isBG,
-          ),
-        );
-      }
-      // 强调动画（缩放 + 辉光 + 正弦浮动）
-      if (options.emphasize && target.isEmphasize && target.charElements.length > 0) {
-        anims.push(
-          ...createEmphasizeAnimations(
-            target.charElements,
-            target.word.endTime - target.word.startTime,
-            target.word.startTime - line.startTime,
-            target.isLastWord,
-            line.isBG,
-          ),
-        );
-      }
+      anims.push(
+        createFloatAnimation(
+          target.element,
+          target.word.startTime - line.startTime,
+          target.word.endTime - target.word.startTime,
+          line.isBG,
+        ),
+      );
     }
 
     // 设置 currentTime 并根据播放状态决定 play/pause
@@ -137,7 +121,6 @@ export class LineAnimationController {
     };
 
     for (const anim of anims) {
-      // 基础 float 反向播放回落，glow/emphasize-float 缓动曲线 0→峰→0 会自然回零
       if (anim.id === "float-word") {
         anim.playbackRate = -1;
         anim.play();

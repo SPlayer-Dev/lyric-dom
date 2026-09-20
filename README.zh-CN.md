@@ -130,7 +130,6 @@ bottomEl.textContent = "作词: ... / 作曲: ...";
 | `enableBlur` | `boolean` | `false` | 是否对非激活行启用基于视口距离的高斯模糊效果。 |
 | `enableWordHighlight` | `boolean` | `true` | 是否启用逐字卡拉OK染色高亮。 |
 | `enableFloatAnimation` | `boolean` | `false` | 是否启用歌词演唱时的逐字轻微上浮动画。 |
-| `enableEmphasizeEffect` | `boolean` | `false` | 是否对长音启用强调效果（放大 + 辉光 + 正弦浮动）。 |
 | `showTranslation` | `boolean` | `true` | 是否显示翻译歌词行。 |
 | `showRomanization` | `boolean` | `true` | 是否显示罗马音歌词行。 |
 | `onLineClick` | `(timeMs: number) => void` | `undefined` | 点击歌词行时的回调函数，参数为该行的起始时间戳（毫秒）。 |

@@ -38,8 +38,6 @@ export interface DemoState extends Record<string, unknown> {
   enableBlur: boolean;
   enableFloatAnimation: boolean;
   enableScale: boolean;
-  enableEmphasizeEffect: boolean;
-  emphasizeMinDuration: number;
   showTranslation: boolean;
   showRomanization: boolean;
   showWordRomanization: boolean;
@@ -67,8 +65,6 @@ export const createInitialState = (): DemoState => ({
   enableBlur: DEFAULTS.enableBlur,
   enableFloatAnimation: DEFAULTS.enableFloatAnimation,
   enableScale: DEFAULTS.enableScale,
-  enableEmphasizeEffect: DEFAULTS.enableEmphasizeEffect,
-  emphasizeMinDuration: DEFAULTS.emphasizeMinDuration,
   showTranslation: DEFAULTS.showTranslation,
   showRomanization: DEFAULTS.showRomanization,
   showWordRomanization: DEFAULTS.showWordRomanization,
@@ -120,8 +116,6 @@ export const clearSavedState = (): void => {
 
 export const REBUILD_KEYS = new Set([
   "enableFloatAnimation",
-  "enableEmphasizeEffect",
-  "emphasizeMinDuration",
   "showTranslation",
   "showRomanization",
   "showWordRomanization",
@@ -143,19 +137,10 @@ export const CONTROL_DEFS: ControlDef<DemoState>[] = [
   { type: "group", label: "透明度" },
   { key: "inactiveAlpha", label: "非激活透明度", type: "range", min: 0.05, max: 1, step: 0.05 },
   { key: "hidePassedLines", label: "隐藏已播行", type: "toggle" },
-  { type: "group", label: "动效与强调" },
+  { type: "group", label: "动效" },
   { key: "enableBlur", label: "逐行模糊", type: "toggle" },
   { key: "enableScale", label: "歌词缩放", type: "toggle" },
   { key: "enableFloatAnimation", label: "逐字上浮", type: "toggle" },
-  { key: "enableEmphasizeEffect", label: "强调辉光", type: "toggle" },
-  {
-    key: "emphasizeMinDuration",
-    label: "长音门槛(ms)",
-    type: "range",
-    min: 300,
-    max: 3000,
-    step: 100,
-  },
   { type: "group", label: "文本与音标" },
   { key: "showTranslation", label: "显示翻译", type: "toggle" },
   { key: "showRomanization", label: "行音译歌词", type: "toggle" },

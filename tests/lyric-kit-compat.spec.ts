@@ -30,7 +30,7 @@ describe("lyric-kit 格式兼容性", () => {
     container.remove();
   });
 
-  it("正确处理逐字歌词中词尾带空格（endsWithSpace）的场景", () => {
+  it("正确处理逐字歌词中带空格单词的渲染与挂载", () => {
     const elrc = `
 [00:01.00]<00:01.00>Never <00:01.40>gonna <00:01.80>give <00:02.20>you <00:02.60>up
 [00:04.00]<00:04.00>Never <00:04.40>gonna <00:04.80>let <00:05.20>you <00:05.60>down
@@ -39,7 +39,7 @@ describe("lyric-kit 格式兼容性", () => {
     const result = parseLyric(elrc);
     expect(result.lines.length).toBe(2);
     expect(result.lines[0].words.length).toBeGreaterThan(1);
-    expect(result.lines[0].words[0].endsWithSpace).toBe(true);
+    expect(result.lines[0].words[0].word).toBe("Never ");
 
     const container = document.createElement("div");
     Object.defineProperty(container, "clientWidth", { value: 800 });
@@ -49,6 +49,9 @@ describe("lyric-kit 格式兼容性", () => {
     const renderer = new LyricRenderer(container);
     renderer.setLyrics(applyScrollPreroll(result.lines));
     renderer.setCurrentTime(1500);
+
+    const line0Text = container.querySelector(".lp-line .lp-main")?.textContent;
+    expect(line0Text).toBe("Never gonna give you up");
 
     renderer.dispose();
     container.remove();
@@ -416,7 +419,7 @@ describe("lyric-kit 格式兼容性", () => {
     container.remove();
   });
 
-  it("开启强调效果（enableEmphasizeEffect）时西文长音节歌词保留词间空格", () => {
+  it("正确渲染西文逐字长音节歌词并保留自然词距", () => {
     const qrc = `
 [00:56.72]<00:56.72>There's <00:57.03>one <00:57.31>in <00:57.52>a <00:57.69>million <00:59.06>it <00:59.43>gotta <00:59.97>be <01:00.17>you
 [01:06.58]<01:06.58>Angela <01:07.71>Angela <01:08.66>Angela
@@ -431,8 +434,7 @@ describe("lyric-kit 格式兼容性", () => {
     document.body.appendChild(container);
 
     const renderer = new LyricRenderer(container, {
-      enableEmphasizeEffect: true,
-      emphasizeMinDuration: 1000,
+      enableFloatAnimation: true,
     });
     renderer.setLyrics(result.lines);
 

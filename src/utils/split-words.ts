@@ -21,7 +21,6 @@ let wordSegmenter: Intl.Segmenter | undefined;
  * @param obscene - 是否为脏话
  * @param startTime - 起始时间
  * @param endTime - 结束时间
- * @param endsWithSpace - 结尾是否紧跟空格
  * @param emptyBeat - 空拍数量
  */
 const makeAtom = (
@@ -30,7 +29,6 @@ const makeAtom = (
   obscene: boolean,
   startTime: number,
   endTime: number,
-  endsWithSpace?: boolean,
   emptyBeat?: number,
 ): LyricWord => ({
   word,
@@ -38,7 +36,6 @@ const makeAtom = (
   startTime,
   endTime,
   obscene,
-  ...(endsWithSpace ? { endsWithSpace: true } : {}),
   ...(emptyBeat !== undefined ? { emptyBeat } : {}),
 });
 
@@ -54,7 +51,6 @@ export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricW
     const content = w.word.trim();
     const romanWord = w.romanWord ?? "";
     const obscene = w.obscene ?? false;
-    const endsWithSpace = w.endsWithSpace ?? false;
     const emptyBeat = w.emptyBeat;
 
     // 空白或含 ruby 注音的单词直接保留
@@ -70,10 +66,9 @@ export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricW
 
     for (let pIdx = 0; pIdx < parts.length; pIdx++) {
       const part = parts[pIdx];
-      const isLastPart = pIdx === parts.length - 1;
       if (!part.trim()) {
         const t = w.startTime + (offset / totalLen) * duration;
-        atoms.push(makeAtom(part, "", obscene, t, t, isLastPart && endsWithSpace, emptyBeat));
+        atoms.push(makeAtom(part, "", obscene, t, t, emptyBeat));
         continue;
       }
 
@@ -82,27 +77,14 @@ export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricW
         const charDur = duration / totalLen;
         for (let cIdx = 0; cIdx < part.length; cIdx++) {
           const char = part[cIdx];
-          const isLastChar = isLastPart && cIdx === part.length - 1;
           const t = w.startTime + (offset / totalLen) * duration;
-          atoms.push(
-            makeAtom(char, "", obscene, t, t + charDur, isLastChar && endsWithSpace, emptyBeat),
-          );
+          atoms.push(makeAtom(char, "", obscene, t, t + charDur, emptyBeat));
           offset++;
         }
       } else {
         const t = w.startTime + (offset / totalLen) * duration;
         const partDur = (part.length / totalLen) * duration;
-        atoms.push(
-          makeAtom(
-            part,
-            romanWord,
-            obscene,
-            t,
-            t + partDur,
-            isLastPart && endsWithSpace,
-            emptyBeat,
-          ),
-        );
+        atoms.push(makeAtom(part, romanWord, obscene, t, t + partDur, emptyBeat));
         offset += part.length;
       }
     }
@@ -144,7 +126,7 @@ export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricW
  * @returns 是否存在边界
  */
 const hasWordBoundaryBetween = (current: LyricWord, next?: LyricWord): boolean => {
-  if (current.endsWithSpace || /\s$/.test(current.word) || !current.word.trim()) {
+  if (/\s$/.test(current.word) || !current.word.trim()) {
     return true;
   }
   if (next && (/^\s/.test(next.word) || !next.word.trim())) {

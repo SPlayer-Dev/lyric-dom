@@ -181,8 +181,6 @@ export class LyricRenderer {
   private enableFloatAnimation = DEFAULTS.enableFloatAnimation;
   /** 是否启用歌词缩放效果 */
   private enableScale = DEFAULTS.enableScale;
-  /** 是否启用强调效果（缩放 + 辉光） */
-  private enableEmphasizeEffect = DEFAULTS.enableEmphasizeEffect;
   /** 是否显示翻译歌词 */
   private showTranslation = DEFAULTS.showTranslation;
   /** 是否显示音译歌词 */
@@ -205,8 +203,6 @@ export class LyricRenderer {
   private seekBackwardThreshold = DEFAULTS.seekBackwardThreshold;
   /** 播放跳转识别前进阈值（ms） */
   private seekForwardThreshold = DEFAULTS.seekForwardThreshold;
-  /** 触发长音节强调的最小持续时间（ms） */
-  private emphasizeMinDuration = DEFAULTS.emphasizeMinDuration;
 
   /** 容器尺寸变化观察器 */
   private containerResizeObserver: ResizeObserver;
@@ -413,8 +409,6 @@ export class LyricRenderer {
 
     // 构建 DOM
     const built = buildLineElements(this.lines, {
-      enableEmphasizeEffect: this.enableEmphasizeEffect,
-      emphasizeMinDuration: this.emphasizeMinDuration,
       showTranslation: this.showTranslation,
       showRomanization: this.showRomanization,
       showWordRomanization: this.showWordRomanization,
@@ -536,13 +530,6 @@ export class LyricRenderer {
       this.enableScale = config.enableScale;
       layoutDirty = true;
     }
-    if (
-      config.enableEmphasizeEffect != null &&
-      config.enableEmphasizeEffect !== this.enableEmphasizeEffect
-    ) {
-      this.enableEmphasizeEffect = config.enableEmphasizeEffect;
-      domRebuildNeeded = true;
-    }
     if (config.showTranslation != null && config.showTranslation !== this.showTranslation) {
       this.showTranslation = config.showTranslation;
       domRebuildNeeded = true;
@@ -592,13 +579,6 @@ export class LyricRenderer {
     if (config.seekForwardThreshold != null) {
       this.seekForwardThreshold = config.seekForwardThreshold;
     }
-    if (
-      config.emphasizeMinDuration != null &&
-      config.emphasizeMinDuration !== this.emphasizeMinDuration
-    ) {
-      this.emphasizeMinDuration = config.emphasizeMinDuration;
-      domRebuildNeeded = true;
-    }
 
     if (domRebuildNeeded && this.lines.length > 0) {
       this.rebuildDomInPlace();
@@ -621,8 +601,6 @@ export class LyricRenderer {
     for (const element of this.lineElements) element.remove();
     // 构建新的 DOM 结构
     const built = buildLineElements(this.lines, {
-      enableEmphasizeEffect: this.enableEmphasizeEffect,
-      emphasizeMinDuration: this.emphasizeMinDuration,
       showTranslation: this.showTranslation,
       showRomanization: this.showRomanization,
       showWordRomanization: this.showWordRomanization,
@@ -1285,7 +1263,6 @@ export class LyricRenderer {
       {
         playing: this.isPlaying,
         float: this.enableFloatAnimation,
-        emphasize: this.enableEmphasizeEffect,
       },
     );
   };
