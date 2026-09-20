@@ -266,6 +266,41 @@
   }
 }
 
+/* ---- 强制对齐 ---- */
+
+.lp-align-left,
+.lp-align-center,
+.lp-align-right {
+  --lp-duet-indent: 1em;
+}
+
+.lp-align-left .lp-line {
+  text-align: left;
+  transform-origin: left;
+}
+
+.lp-align-left .lp-line .lp-content {
+  margin-left: 0;
+}
+
+.lp-align-center .lp-line {
+  text-align: center;
+  transform-origin: center;
+}
+
+.lp-align-center .lp-line .lp-content {
+  margin-inline: auto;
+}
+
+.lp-align-right .lp-line {
+  text-align: right;
+  transform-origin: right;
+}
+
+.lp-align-right .lp-line .lp-content {
+  margin-left: auto;
+}
+
 /* ---- 底部信息行 ---- */
 
 .lp-credit {

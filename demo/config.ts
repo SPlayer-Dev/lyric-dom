@@ -1,3 +1,4 @@
+import type { LyricAlignment } from "../src";
 import { DEFAULTS } from "../src";
 import type { ControlDef } from "./panel";
 
@@ -29,6 +30,7 @@ export const SPRING_PRESETS: Record<
 export interface DemoState extends Record<string, unknown> {
   fontSize: number;
   alignPosition: number;
+  alignment: LyricAlignment;
   wordFadeWidth: number;
   enableWordHighlight: boolean;
   minInterludeGap: number;
@@ -57,6 +59,7 @@ export interface DemoState extends Record<string, unknown> {
 export const createInitialState = (): DemoState => ({
   fontSize: 30,
   alignPosition: DEFAULTS.alignPosition,
+  alignment: DEFAULTS.alignment,
   wordFadeWidth: DEFAULTS.wordFadeWidth,
   enableWordHighlight: DEFAULTS.enableWordHighlight,
   minInterludeGap: DEFAULTS.minInterludeGap,
@@ -131,6 +134,17 @@ export const CONTROL_DEFS: ControlDef<DemoState>[] = [
   { type: "group", label: "布局与字号" },
   { key: "fontSize", label: "字体大小(px)", type: "range", min: 16, max: 64, step: 1 },
   { key: "alignPosition", label: "对齐位置", type: "range", min: 0, max: 1, step: 0.01 },
+  {
+    key: "alignment",
+    label: "水平对齐",
+    type: "select",
+    options: [
+      { value: "auto", label: "自动" },
+      { value: "left", label: "居左" },
+      { value: "center", label: "居中" },
+      { value: "right", label: "居右" },
+    ],
+  },
   { type: "group", label: "逐字高亮" },
   { key: "wordFadeWidth", label: "渐变宽度", type: "range", min: 0, max: 1, step: 0.01 },
   { key: "enableWordHighlight", label: "逐字高亮", type: "toggle" },

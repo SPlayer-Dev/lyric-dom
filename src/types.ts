@@ -1,6 +1,9 @@
 /** 歌词行语言；und-Latn 表示语言未知的拉丁文字 */
 export type LyricLanguage = "ja" | "ko" | "zh-CN" | "und-Latn";
 
+/** 歌词行水平对齐方式 */
+export type LyricAlignment = "auto" | "left" | "center" | "right";
+
 /** 歌词时间片段 */
 export interface LyricSpan {
   /** 起始时间（毫秒） */
@@ -119,6 +122,11 @@ export interface RendererConfig {
    * @default 0.35
    */
   alignPosition: number;
+  /**
+   * 歌词行水平对齐方式；非 auto 时覆盖行自带对齐（含对唱行居右）
+   * @default "auto"
+   */
+  alignment: LyricAlignment;
   /**
    * 播放状态
    * @default false

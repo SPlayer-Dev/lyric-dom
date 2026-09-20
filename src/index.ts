@@ -2,6 +2,7 @@ export { LyricRenderer } from "./engine";
 export { DEFAULTS } from "./engine/constants";
 export type {
   LineClickCallback,
+  LyricAlignment,
   LyricLanguage,
   LyricLine,
   LyricSpan,

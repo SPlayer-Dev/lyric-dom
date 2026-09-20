@@ -117,6 +117,7 @@ bottomEl.textContent = "作词: ... / 作曲: ...";
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `alignPosition` | `number` | `0.35` | 激活行在容器中的垂直对齐位置比例（`0` 到 `1`，`0.35` 表示距顶部 35%）。 |
+| `alignment` | `"auto" \| "left" \| "center" \| "right"` | `"auto"` | 歌词行水平对齐方式；非 `auto` 时覆盖行自带对齐 |
 | `playing` | `boolean` | `true` | 当前播放状态。 |
 | `springConfig` | `Partial<SpringParams>` | `{}` | 自定义弹簧物理参数，用于控制滚动与缩放插值。 |
 | `wordFadeWidth` | `number` | `0.5` | 逐字掩码渐变边缘的宽度比例。 |

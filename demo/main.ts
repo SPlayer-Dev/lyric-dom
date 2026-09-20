@@ -65,6 +65,7 @@ const player = new DemoPlayer(audio, (playing) => {
 const renderer = new LyricRenderer(container, {
   playing: false,
   alignPosition: state.alignPosition,
+  alignment: state.alignment,
   wordFadeWidth: state.wordFadeWidth,
   enableWordHighlight: state.enableWordHighlight,
   minInterludeGap: state.minInterludeGap,
@@ -306,6 +307,7 @@ btnReset?.addEventListener("click", () => {
 
   renderer.setConfig({
     alignPosition: state.alignPosition,
+    alignment: state.alignment,
     wordFadeWidth: state.wordFadeWidth,
     enableWordHighlight: state.enableWordHighlight,
     minInterludeGap: state.minInterludeGap,

@@ -117,6 +117,7 @@ Customize themes, font sizes, colors, and layout spacing through CSS custom prop
 | Option                  | Type                       | Default     | Description                                                                                   |
 | :---------------------- | :------------------------- | :---------- | :-------------------------------------------------------------------------------------------- |
 | `alignPosition`         | `number`                   | `0.35`      | Vertical alignment ratio of the active line in container (`0` to `1`, `0.35` = 35% from top). |
+| `alignment`             | `"auto" \| "left" \| "center" \| "right"` | `"auto"` | Horizontal alignment of lyric lines; non-`auto` overrides per-line alignment |
 | `playing`               | `boolean`                  | `true`      | Current playback state.                                                                       |
 | `springConfig`          | `Partial<SpringParams>`    | `{}`        | Custom spring physics parameters for scrolling and scaling animations.                        |
 | `wordFadeWidth`         | `number`                   | `0.5`       | Word-by-word gradient mask transition width ratio.                                            |

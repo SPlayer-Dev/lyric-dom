@@ -56,8 +56,8 @@ export interface InterludeState {
   x: number;
   /** 圆点 Y 坐标 */
   y: number;
-  /** 圆点是否靠右对齐（对唱行前的间奏） */
-  alignRight: boolean;
+  /** 圆点水平对齐，跟随其锚定行的有效对齐 */
+  align: "left" | "center" | "right";
   /** 圆点锚定的下一歌词行索引 */
   anchorIndex: number;
   /** 圆点相对锚定行的 Y 偏移 */
@@ -151,7 +151,8 @@ export const renderInterludeDots = (
   scale = Math.max(0, scale);
 
   // 容器 transform
-  const origin = state.alignRight ? "right center" : "left center";
+  const origin =
+    state.align === "right" ? "right center" : state.align === "center" ? "center" : "left center";
   const transformStr = `translate(${state.x.toFixed(1)}px,${state.y.toFixed(1)}px) scale(${scale.toFixed(4)})`;
   const styleKey = transformStr + origin;
   if (cache.containerStyle !== styleKey) {

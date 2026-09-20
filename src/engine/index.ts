@@ -1,4 +1,10 @@
-import type { LyricLine, RendererConfig, ScrollPrerollOptions, SpringParams } from "../types";
+import type {
+  LyricAlignment,
+  LyricLine,
+  RendererConfig,
+  ScrollPrerollOptions,
+  SpringParams,
+} from "../types";
 import { setMin } from "../utils/math";
 import { syncMainAndBackgroundLines } from "../utils/normalize";
 import { applyScrollPreroll } from "../utils/scroll-preroll";
@@ -99,7 +105,7 @@ export class LyricRenderer {
     endTime: 0,
     x: 0,
     y: 0,
-    alignRight: false,
+    align: "left",
     anchorIndex: 0,
     anchorOffset: 0,
   };
@@ -147,6 +153,8 @@ export class LyricRenderer {
 
   /** 激活行在容器中的对齐位置（0~1） */
   private alignPosition = DEFAULTS.alignPosition;
+  /** 歌词行水平对齐方式 */
+  private alignment: LyricAlignment = DEFAULTS.alignment;
   /** 是否正在播放 */
   private isPlaying = true;
   /** 逐字掩码渐变宽度比例 */
@@ -241,6 +249,7 @@ export class LyricRenderer {
     this.bottomLineEl.className = "lp-credit";
     this.innerElement.appendChild(this.bottomLineEl);
     if (config) this.applyConfig(config);
+    this.syncAlignmentClass();
     // 缓存容器尺寸
     this.containerWidth = container.clientWidth;
     this.containerHeight = container.clientHeight;
@@ -314,7 +323,13 @@ export class LyricRenderer {
     this.container.removeEventListener("mouseleave", this.handleMouseLeave);
     document.removeEventListener("visibilitychange", this.handleVisibilityChange);
     this.innerElement.remove();
-    this.container.classList.remove("lp-root", "lp-has-duet");
+    this.container.classList.remove(
+      "lp-root",
+      "lp-has-duet",
+      "lp-align-left",
+      "lp-align-center",
+      "lp-align-right",
+    );
   };
 
   /**
@@ -501,6 +516,10 @@ export class LyricRenderer {
     if (config.alignPosition != null && config.alignPosition !== this.alignPosition) {
       this.alignPosition = config.alignPosition;
       layoutDirty = true;
+    }
+    if (config.alignment != null && config.alignment !== this.alignment) {
+      this.alignment = config.alignment;
+      this.syncAlignmentClass();
     }
     if (config.playing != null && config.playing !== this.isPlaying) {
       this.isPlaying = config.playing;
@@ -899,6 +918,14 @@ export class LyricRenderer {
     this.syncBgProgress();
   };
 
+  /** 同步强制对齐模式类，非 auto 时覆盖行自带对齐 */
+  private syncAlignmentClass = () => {
+    const classList = this.container.classList;
+    classList.toggle("lp-align-left", this.alignment === "left");
+    classList.toggle("lp-align-center", this.alignment === "center");
+    classList.toggle("lp-align-right", this.alignment === "right");
+  };
+
   /** 把副行展开进度写入浮层元素，驱动 CSS 显隐与位移；写在浮层而非宿主，缩小逐帧样式失效范围 */
   private syncBgProgress = () => {
     for (let i = 1; i < this.lines.length; i++) {
@@ -966,9 +993,14 @@ export class LyricRenderer {
         dotsInserted = true;
         position += dotsGap;
         const isDuet = interlude[3];
-        this.interludeState.x = isDuet ? viewWidth - this.dotsContainerWidth : 0;
+        // 圆点跟随有效行对齐，强制对齐覆盖对唱行靠右
+        const dotsAlign = this.alignment === "auto" ? (isDuet ? "right" : "left") : this.alignment;
+        let dotsX = 0;
+        if (dotsAlign === "right") dotsX = viewWidth - this.dotsContainerWidth;
+        else if (dotsAlign === "center") dotsX = (viewWidth - this.dotsContainerWidth) / 2;
+        this.interludeState.x = dotsX;
         this.interludeState.y = position;
-        this.interludeState.alignRight = isDuet;
+        this.interludeState.align = dotsAlign;
         // 锚定到下一歌词行
         this.interludeState.anchorIndex = i;
         this.interludeState.anchorOffset = -(this.dotsContainerHeight + dotsGap);

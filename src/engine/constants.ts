@@ -2,6 +2,7 @@
  * 歌词渲染引擎 — 默认配置常量
  */
 
+import type { LyricAlignment } from "../types";
 import { DEFAULT_SCROLL_PREROLL_OPTIONS } from "../utils/scroll-preroll";
 
 export const DEFAULTS = {
@@ -19,6 +20,8 @@ export const DEFAULTS = {
   inactiveAlpha: 0.2,
   /** 激活行在容器中的对齐位置（0~1） */
   alignPosition: 0.35,
+  /** 歌词行水平对齐方式 */
+  alignment: "auto" as LyricAlignment,
   /** 逐字掩码渐变宽度比例 */
   wordFadeWidth: 0.5,
   /** 是否隐藏已播放行 */
