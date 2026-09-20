@@ -179,6 +179,8 @@ export class LyricRenderer {
   private enableWordHighlight = DEFAULTS.enableWordHighlight;
   /** 是否启用逐字上浮动画 */
   private enableFloatAnimation = DEFAULTS.enableFloatAnimation;
+  /** 是否启用长音节强调辉光 */
+  private enableEmphasizeEffect = DEFAULTS.enableEmphasizeEffect;
   /** 是否启用歌词缩放效果 */
   private enableScale = DEFAULTS.enableScale;
   /** 是否显示翻译歌词 */
@@ -203,6 +205,8 @@ export class LyricRenderer {
   private seekBackwardThreshold = DEFAULTS.seekBackwardThreshold;
   /** 播放跳转识别前进阈值（ms） */
   private seekForwardThreshold = DEFAULTS.seekForwardThreshold;
+  /** 触发强调辉光的最小音节时长 */
+  private emphasizeMinDuration = DEFAULTS.emphasizeMinDuration;
 
   /** 容器尺寸变化观察器 */
   private containerResizeObserver: ResizeObserver;
@@ -409,6 +413,8 @@ export class LyricRenderer {
 
     // 构建 DOM
     const built = buildLineElements(this.lines, {
+      enableEmphasizeEffect: this.enableEmphasizeEffect,
+      emphasizeMinDuration: this.emphasizeMinDuration,
       showTranslation: this.showTranslation,
       showRomanization: this.showRomanization,
       showWordRomanization: this.showWordRomanization,
@@ -496,12 +502,15 @@ export class LyricRenderer {
    */
   private applyConfig = (config: Partial<RendererConfig>) => {
     let layoutDirty = false;
+    let playbackChanged = false;
+    let animationOptionsChanged = false;
     if (config.alignPosition != null && config.alignPosition !== this.alignPosition) {
       this.alignPosition = config.alignPosition;
       layoutDirty = true;
     }
     if (config.playing != null && config.playing !== this.isPlaying) {
       this.isPlaying = config.playing;
+      playbackChanged = true;
       layoutDirty = true;
     }
     if (config.wordFadeWidth != null && config.wordFadeWidth !== this.wordFadeWidth) {
@@ -524,8 +533,20 @@ export class LyricRenderer {
     let needPrerollUpdate = false;
 
     if (config.enableWordHighlight != null) this.enableWordHighlight = config.enableWordHighlight;
-    if (config.enableFloatAnimation != null)
+    if (
+      config.enableFloatAnimation != null &&
+      config.enableFloatAnimation !== this.enableFloatAnimation
+    ) {
       this.enableFloatAnimation = config.enableFloatAnimation;
+      animationOptionsChanged = true;
+    }
+    if (
+      config.enableEmphasizeEffect != null &&
+      config.enableEmphasizeEffect !== this.enableEmphasizeEffect
+    ) {
+      this.enableEmphasizeEffect = config.enableEmphasizeEffect;
+      domRebuildNeeded = true;
+    }
     if (config.enableScale != null && config.enableScale !== this.enableScale) {
       this.enableScale = config.enableScale;
       layoutDirty = true;
@@ -579,16 +600,49 @@ export class LyricRenderer {
     if (config.seekForwardThreshold != null) {
       this.seekForwardThreshold = config.seekForwardThreshold;
     }
+    if (
+      config.emphasizeMinDuration != null &&
+      config.emphasizeMinDuration !== this.emphasizeMinDuration
+    ) {
+      this.emphasizeMinDuration = Math.max(0, config.emphasizeMinDuration);
+      domRebuildNeeded = true;
+    }
 
     if (domRebuildNeeded && this.lines.length > 0) {
       this.rebuildDomInPlace();
       return;
     }
 
+    if (animationOptionsChanged && this.lines.length > 0) {
+      this.recreateActiveAnimations();
+    } else if (playbackChanged) {
+      if (this.isPlaying) this.lineAnimations.realignActive(this.lines, this.lastProcessedTime);
+      else this.lineAnimations.pauseActive();
+    }
+
     if (layoutDirty && this.lineElements.length > 0) {
       this.measureLineHeights();
       this.calculateLayout(false);
       this.needsFullSync = true;
+    }
+  };
+
+  /** 按当前时间和效果开关重建激活行的动画集合 */
+  private recreateActiveAnimations = () => {
+    for (const lineIdx of this.activeLineSet) {
+      const line = this.lines[lineIdx];
+      if (!line) continue;
+      this.lineAnimations.activate(
+        lineIdx,
+        line,
+        this.lineAnimTargets[lineIdx],
+        Math.max(line.startTime, this.lastProcessedTime),
+        {
+          playing: this.isPlaying,
+          float: this.enableFloatAnimation,
+          emphasize: this.enableEmphasizeEffect,
+        },
+      );
     }
   };
 
@@ -601,6 +655,8 @@ export class LyricRenderer {
     for (const element of this.lineElements) element.remove();
     // 构建新的 DOM 结构
     const built = buildLineElements(this.lines, {
+      enableEmphasizeEffect: this.enableEmphasizeEffect,
+      emphasizeMinDuration: this.emphasizeMinDuration,
       showTranslation: this.showTranslation,
       showRomanization: this.showRomanization,
       showWordRomanization: this.showWordRomanization,
@@ -620,9 +676,7 @@ export class LyricRenderer {
     for (const lineIdx of this.activeLineSet) {
       this.lineElements[lineIdx]?.classList.add("active");
     }
-    if (this.isPlaying && this.lastProcessedTime >= 0) {
-      this.lineAnimations.realignActive(this.lines, this.lastProcessedTime);
-    }
+    this.recreateActiveAnimations();
     // 更新哨兵观察器
     this.sentinelResizeObserver.disconnect();
     this.sentinelElement = null;
@@ -652,6 +706,11 @@ export class LyricRenderer {
       const tf = `translateY(${y.toFixed(2)}px) scale(${s.toFixed(4)})`;
       this.cachedTransforms[i] = tf;
       lineEl.style.transform = tf;
+      // 新节点需要重新同步合成层与视口裁剪状态
+      const inView = y >= -500 && y <= this.containerHeight + 500;
+      this.lineWillChange[i] = inView;
+      this.lineCulled[i] = false;
+      lineEl.style.willChange = inView ? "transform, filter" : "";
       // 同步模糊缓存与样式
       const blur = this.blurValues[i] || 0;
       if (blur > 0.01) {
@@ -1263,6 +1322,7 @@ export class LyricRenderer {
       {
         playing: this.isPlaying,
         float: this.enableFloatAnimation,
+        emphasize: this.enableEmphasizeEffect,
       },
     );
   };

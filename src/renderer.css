@@ -204,6 +204,18 @@
     text-align: inherit;
   }
 
+  & > span.lp-emp-wrapper {
+    display: inline-block;
+    white-space: pre-wrap;
+    vertical-align: bottom;
+
+    & .lp-emp-char {
+      display: inline-block;
+      transform-origin: center bottom;
+      backface-visibility: hidden;
+    }
+  }
+
   .lp-roman-word {
     display: block;
     font-size: var(--lp-roman-font-size, 0.5em);

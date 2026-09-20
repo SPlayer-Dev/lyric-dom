@@ -29,6 +29,10 @@ export const DEFAULTS = {
   enableWordHighlight: true,
   /** 是否启用逐字上浮动画 */
   enableFloatAnimation: false,
+  /** 是否启用长音节强调辉光 */
+  enableEmphasizeEffect: false,
+  /** 触发强调辉光的最小音节时长（毫秒） */
+  emphasizeMinDuration: 1000,
   /** 是否启用歌词缩放效果（开启时非激活行轻微缩小） */
   enableScale: true,
   /** 是否显示翻译歌词 */

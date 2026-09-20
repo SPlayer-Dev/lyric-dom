@@ -37,6 +37,7 @@ export interface DemoState extends Record<string, unknown> {
   hidePassedLines: boolean;
   enableBlur: boolean;
   enableFloatAnimation: boolean;
+  enableEmphasizeEffect: boolean;
   enableScale: boolean;
   showTranslation: boolean;
   showRomanization: boolean;
@@ -64,6 +65,7 @@ export const createInitialState = (): DemoState => ({
   hidePassedLines: DEFAULTS.hidePassedLines,
   enableBlur: DEFAULTS.enableBlur,
   enableFloatAnimation: DEFAULTS.enableFloatAnimation,
+  enableEmphasizeEffect: DEFAULTS.enableEmphasizeEffect,
   enableScale: DEFAULTS.enableScale,
   showTranslation: DEFAULTS.showTranslation,
   showRomanization: DEFAULTS.showRomanization,
@@ -116,6 +118,7 @@ export const clearSavedState = (): void => {
 
 export const REBUILD_KEYS = new Set([
   "enableFloatAnimation",
+  "enableEmphasizeEffect",
   "showTranslation",
   "showRomanization",
   "showWordRomanization",
@@ -141,6 +144,7 @@ export const CONTROL_DEFS: ControlDef<DemoState>[] = [
   { key: "enableBlur", label: "逐行模糊", type: "toggle" },
   { key: "enableScale", label: "歌词缩放", type: "toggle" },
   { key: "enableFloatAnimation", label: "逐字上浮", type: "toggle" },
+  { key: "enableEmphasizeEffect", label: "强调辉光", type: "toggle" },
   { type: "group", label: "文本与音标" },
   { key: "showTranslation", label: "显示翻译", type: "toggle" },
   { key: "showRomanization", label: "行音译歌词", type: "toggle" },

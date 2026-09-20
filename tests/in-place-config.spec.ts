@@ -41,6 +41,7 @@ describe("setConfig 原地热更新 (In-place Hot Update)", () => {
       positionSprings: unknown[];
       activeLineIndex: number;
       lineElements: HTMLElement[];
+      lineWillChange: boolean[];
       processTime: (t: number) => boolean;
     };
 
@@ -50,6 +51,7 @@ describe("setConfig 原地热更新 (In-place Hot Update)", () => {
 
     // 记录热更新前的弹簧实例引用与激活行
     const originalSprings = [...engine.positionSprings];
+    const oldLineElement = engine.lineElements[0];
     expect(container.querySelectorAll(".lp-sub").length).toBe(2);
 
     // 切换关闭翻译
@@ -66,6 +68,10 @@ describe("setConfig 原地热更新 (In-place Hot Update)", () => {
 
     // 验证新创建的 DOM 元素上保留了 active 类
     expect(engine.lineElements[0]?.classList.contains("active")).toBe(true);
+    // 新 DOM 必须重新获得真实的合成层提示，不能沿用旧节点的 lineWillChange 缓存。
+    expect(engine.lineElements[0]).not.toBe(oldLineElement);
+    expect(engine.lineWillChange[0]).toBe(true);
+    expect(engine.lineElements[0]?.style.willChange).toBe("transform, filter");
 
     renderer.dispose();
   });

@@ -172,6 +172,16 @@ export interface RendererConfig {
    */
   enableFloatAnimation: boolean;
   /**
+   * 是否启用长音节强调辉光（按需为激活行创建动画）
+   * @default false
+   */
+  enableEmphasizeEffect: boolean;
+  /**
+   * 触发强调辉光的最小音节时长（毫秒）
+   * @default 1000
+   */
+  emphasizeMinDuration: number;
+  /**
    * 是否启用歌词缩放效果
    * @default true
    */
@@ -240,4 +250,10 @@ export interface WordAnimTarget {
   element: HTMLElement;
   /** 单词数据 */
   word: LyricWord;
+  /** 是否为强调动画目标 */
+  isEmphasize?: boolean;
+  /** 强调动画的字符节点 */
+  charElements?: HTMLElement[];
+  /** 强调组是否位于行末 */
+  isLastWord?: boolean;
 }

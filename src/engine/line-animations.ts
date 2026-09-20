@@ -5,6 +5,7 @@
  */
 
 import type { LyricLine } from "../types";
+import { createEmphasizeAnimations } from "./emphasize";
 import { createFloatAnimation } from "./float";
 import type { WordAnimTarget } from "./word-builder";
 
@@ -14,6 +15,8 @@ export interface ActivateOptions {
   playing: boolean;
   /** 是否启用逐字上浮动画 */
   float: boolean;
+  /** 是否启用长音节强调辉光 */
+  emphasize: boolean;
 }
 
 /**
@@ -71,20 +74,33 @@ export class LineAnimationController {
       }
     }
 
-    if (!targets?.length || !options.float) return;
+    if (!targets?.length || (!options.float && !options.emphasize)) return;
 
     const relativeTime = Math.max(0, currentTime - line.startTime);
     const anims: Animation[] = [];
 
     for (const target of targets) {
-      anims.push(
-        createFloatAnimation(
-          target.element,
-          target.word.startTime - line.startTime,
-          target.word.endTime - target.word.startTime,
-          line.isBG,
-        ),
-      );
+      if (options.float) {
+        anims.push(
+          createFloatAnimation(
+            target.element,
+            target.word.startTime - line.startTime,
+            target.word.endTime - target.word.startTime,
+            line.isBG,
+          ),
+        );
+      }
+      if (options.emphasize && target.isEmphasize && target.charElements?.length) {
+        anims.push(
+          ...createEmphasizeAnimations(
+            target.charElements,
+            target.word.endTime - target.word.startTime,
+            target.word.startTime - line.startTime,
+            target.isLastWord ?? false,
+            line.isBG,
+          ),
+        );
+      }
     }
 
     // 设置 currentTime 并根据播放状态决定 play/pause

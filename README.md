@@ -130,6 +130,8 @@ Customize themes, font sizes, colors, and layout spacing through CSS custom prop
 | `enableBlur`            | `boolean`                  | `false`     | Whether to enable distance-based blur effect on inactive lines.                               |
 | `enableWordHighlight`   | `boolean`                  | `true`      | Whether to enable word-by-word karaoke sweep highlighting.                                    |
 | `enableFloatAnimation`  | `boolean`                  | `false`     | Whether to enable subtle upward floating animation on sung words.                             |
+| `enableEmphasizeEffect` | `boolean`                  | `false`     | Whether to enable on-demand glow and motion emphasis for long notes.                          |
+| `emphasizeMinDuration`  | `number`                   | `1000`      | Minimum note duration in milliseconds required for emphasis.                                 |
 | `showTranslation`       | `boolean`                  | `true`      | Whether to display translated lyrics.                                                         |
 | `showRomanization`      | `boolean`                  | `true`      | Whether to display romanized lyrics.                                                          |
 | `onLineClick`           | `(timeMs: number) => void` | `undefined` | Callback invoked when clicking a lyric line, receiving line start time in ms.                 |
