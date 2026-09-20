@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "lyric-dom",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A framework-agnostic karaoke lyrics renderer for the browser, built on the native DOM API with zero runtime dependencies.",
   "type": "module",
   "packageManager": "pnpm@11.21.0",
