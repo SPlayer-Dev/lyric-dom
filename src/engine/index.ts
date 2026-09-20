@@ -1030,26 +1030,26 @@ export class LyricRenderer {
   };
 
   /**
-   * 入场动画：从底部升起 + 缩放恢复
+   * 让视口附近的歌词行从底部同步滑入
    * @param offset - 初始偏移距离（px）
    */
   private playEntranceAnimation = (offset: number) => {
+    const minVisibleY = -500;
+    const maxVisibleY = this.containerHeight + 500;
     for (let i = 0; i < this.positionSprings.length; i++) {
-      // 背景行浮层已随主行 DOM 一起入场，不再单独驱动
       if (this.lines[i].isBG) continue;
       const posSpring = this.positionSprings[i];
-      const scaleSpring = this.scaleSprings[i];
       const targetY = posSpring.getCurrentPosition();
-      const targetScale = scaleSpring.getCurrentPosition();
+      if (targetY < minVisibleY || targetY > maxVisibleY) continue;
       posSpring.setPosition(targetY + offset);
-      posSpring.setTargetPosition(targetY, i * 40);
-      scaleSpring.setPosition(targetScale * 0.9);
-      scaleSpring.setTargetPosition(targetScale, i * 40);
+      posSpring.setTargetPosition(targetY);
     }
-    // bottom-line 入场
+
     const bottomTarget = this.bottomLineSpring.getCurrentPosition();
-    this.bottomLineSpring.setPosition(bottomTarget + offset);
-    this.bottomLineSpring.setTargetPosition(bottomTarget, this.positionSprings.length * 40);
+    if (bottomTarget >= minVisibleY && bottomTarget <= maxVisibleY) {
+      this.bottomLineSpring.setPosition(bottomTarget + offset);
+      this.bottomLineSpring.setTargetPosition(bottomTarget);
+    }
   };
 
   /**

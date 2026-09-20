@@ -304,7 +304,7 @@ const buildEmphasizedChunk = (
 /**
  * 测量所有单词的宽度并设置 CSS 掩码
  * 采用读写分离策略：第一遍批量读取所有 DOM 尺寸（触发一次回流），
- * 第二遍批量写入所有 CSS mask 样式（零回流），避免逐词读写交替导致的 N 次强制回流。
+ * 第二遍批量写入所有 CSS mask 样式（零回流），避免逐词读写交替导致的 N 次强制回流
  * @param wordMeasurements - 每行的单词测量数据
  * @param fadeRatio - 渐变区域宽度比例
  * @param lines - 歌词行数组，提供行起始时间
@@ -374,10 +374,12 @@ export const measureAndApplyWordMasks = (
       style.setProperty("-webkit-mask-size", maskSize);
       style.setProperty("-webkit-mask-repeat", "no-repeat");
       style.setProperty("-webkit-mask-position", maskPosition);
+      style.removeProperty("-webkit-mask-composite");
       style.setProperty("mask-image", maskImage);
       style.setProperty("mask-size", maskSize);
       style.setProperty("mask-repeat", "no-repeat");
       style.setProperty("mask-position", maskPosition);
+      style.removeProperty("mask-composite");
     }
   }
 };

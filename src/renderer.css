@@ -119,7 +119,6 @@
   line-height: var(--lp-sub-line-height, 1.5em);
   color: var(--lp-sub-color, inherit);
   opacity: var(--lp-sub-inactive-opacity, var(--da, 0.2));
-  transition: opacity 0.35s ease;
 }
 
 .lp-line.active .lp-sub {
@@ -208,9 +207,13 @@
     display: inline-block;
     white-space: pre-wrap;
     vertical-align: bottom;
+    padding: 1em;
+    margin: -1em;
 
     & .lp-emp-char {
       display: inline-block;
+      padding: 1em;
+      margin: -1em;
       transform-origin: center bottom;
       backface-visibility: hidden;
     }

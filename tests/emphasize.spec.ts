@@ -5,7 +5,7 @@ import {
   shouldChunkEmphasize,
   shouldEmphasize,
 } from "../src/engine/emphasize";
-import { buildWordSpans } from "../src/engine/word-builder";
+import { buildWordSpans, measureAndApplyWordMasks } from "../src/engine/word-builder";
 import type { LyricWord } from "../src/types";
 
 const word = (text: string, startTime: number, endTime: number): LyricWord => ({
@@ -114,5 +114,33 @@ describe("长音强调辉光", () => {
       expect.objectContaining({ float: true, emphasize: true }),
     );
     renderer.dispose();
+  });
+
+  it("强调词绘制安全区不会改变逐字遮罩的内容坐标", () => {
+    const element = document.createElement("span");
+    element.className = "lp-emp-wrapper";
+    element.style.padding = "10px";
+    Object.defineProperty(element, "clientWidth", { value: 120 });
+    Object.defineProperty(element, "clientHeight", { value: 40 });
+    const timedWord = word("长音", 1000, 2000);
+    const computedStyle = vi
+      .spyOn(globalThis, "getComputedStyle")
+      .mockReturnValue({ paddingLeft: "10px" } as CSSStyleDeclaration);
+
+    measureAndApplyWordMasks([[{ element, word: timedWord, width: 0, fadeWidth: 0 }]], 0.5, [
+      {
+        words: [timedWord],
+        translatedLyric: "",
+        romanLyric: "",
+        startTime: 1000,
+        endTime: 2000,
+        isBG: false,
+        isDuet: false,
+      },
+    ]);
+
+    expect(element.style.maskPosition).toContain("clamp(-100px");
+    expect(element.style.maskPosition).toContain(",10px)");
+    computedStyle.mockRestore();
   });
 });

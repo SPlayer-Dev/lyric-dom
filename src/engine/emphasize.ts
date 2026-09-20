@@ -9,6 +9,10 @@ import type { LyricWord } from "../types";
 import { isCJK } from "../utils/split-words";
 
 const FRAME_COUNT = 32;
+/** 最短长音在峰值时仍可辨认的辉光强度 */
+const MIN_GLOW_STRENGTH = 0.16;
+/** 辉光强度上限，避免长音产生过大的重绘区域 */
+const MAX_GLOW_STRENGTH = 0.72;
 
 /** 将数值限制在 0 到 1 之间 */
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -88,15 +92,15 @@ export const createEmphasizeAnimations = (
   amount = amount > 1 ? Math.sqrt(amount) : amount ** 3;
   let blur = safeDuration / 3000;
   blur = blur > 1 ? Math.sqrt(blur) : blur ** 3;
-  amount *= 0.6;
+  amount *= 0.52;
   blur *= 0.5;
   if (isLastWord) {
-    amount *= 1.6;
-    blur *= 1.5;
+    amount *= 1.45;
+    blur *= 1.4;
     safeDuration *= 1.2;
   }
   amount = Math.min(1.2, amount);
-  blur = Math.min(0.8, blur);
+  blur = Math.min(MAX_GLOW_STRENGTH, Math.max(MIN_GLOW_STRENGTH, blur));
 
   const animations: Animation[] = [];
   for (let index = 0; index < characterElements.length; index++) {
@@ -105,13 +109,16 @@ export const createEmphasizeAnimations = (
     const glowFrames: Keyframe[] = Array.from({ length: FRAME_COUNT }, (_, frameIndex) => {
       const progress = (frameIndex + 1) / FRAME_COUNT;
       const eased = emphasisEasing(progress);
-      const scale = 1 + eased * 0.1 * amount;
-      const offsetX = -eased * 0.03 * amount * (characterCount / 2 - index);
-      const offsetY = -eased * 0.025 * amount;
+      const scale = 1 + eased * 0.085 * amount;
+      const offsetX = -eased * 0.024 * amount * (characterCount / 2 - index);
+      const offsetY = -eased * 0.02 * amount;
+      const glowAlpha = eased * blur;
+      const innerRadius = Math.min(0.16, 0.035 + blur * 0.12);
+      const outerRadius = Math.min(0.28, 0.08 + blur * 0.2);
       return {
         offset: progress,
         transform: `${scaleMatrix3d(scale)} translate(${offsetX}em, ${offsetY}em)`,
-        textShadow: `0 0 ${Math.min(0.3, blur * 0.3)}em rgba(255, 255, 255, ${eased * blur})`,
+        textShadow: `0 0 ${innerRadius}em rgba(255, 255, 255, ${glowAlpha}), 0 0 ${outerRadius}em rgba(255, 255, 255, ${glowAlpha * 0.45})`,
       };
     });
     const glow = element.animate(glowFrames, {
@@ -128,7 +135,7 @@ export const createEmphasizeAnimations = (
     const floatFrames: Keyframe[] = Array.from({ length: FRAME_COUNT }, (_, frameIndex) => {
       const progress = (frameIndex + 1) / FRAME_COUNT;
       const height = Math.sin(progress * Math.PI) * (isBG ? 2 : 1);
-      return { offset: progress, transform: `translateY(${-height * 0.05}em)` };
+      return { offset: progress, transform: `translateY(${-height * 0.043}em)` };
     });
     const float = element.animate(floatFrames, {
       duration: safeDuration * 1.4,
