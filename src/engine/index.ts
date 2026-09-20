@@ -77,10 +77,6 @@ export class LyricRenderer {
   private alphaValues: Float64Array = new Float64Array(0);
   /** 模糊插值，驱动 --blur */
   private blurValues: Float64Array = new Float64Array(0);
-  /** 已播行淡出值，驱动 --pass */
-  private passValues: Float64Array = new Float64Array(0);
-  /** --pass 写入缓存 */
-  private cachedPassKeys: string[] = [];
 
   /** 入场动画完成后跳过相关计算 */
   private entranceComplete = true;
@@ -406,8 +402,6 @@ export class LyricRenderer {
     this.cachedAlphaKeys = new Array(lineCount).fill("");
     this.cachedBlurKeys = new Array(lineCount).fill("");
     this.blurValues = new Float64Array(lineCount);
-    this.passValues = new Float64Array(lineCount).fill(1);
-    this.cachedPassKeys = new Array(lineCount).fill("");
 
     this.entranceComplete = false;
 
@@ -691,7 +685,6 @@ export class LyricRenderer {
     this.cachedTransforms.fill("");
     this.cachedAlphaKeys.fill("");
     this.cachedBlurKeys.fill("");
-    this.cachedPassKeys.fill("");
     this.cachedBgKeys.fill("");
     this.cachedTimeString = "";
     // 立即同步 transform 与模糊样式
@@ -726,7 +719,7 @@ export class LyricRenderer {
         this.lineElements[lineIdx]?.style.setProperty("--t", timeStr);
       }
     }
-    // 立即同步视觉透明度（--ba, --da, --pass）
+    // 立即同步视觉透明度（--ba, --da）
     this.snapVisualState();
     // 平滑重算布局
     this.calculateLayout(false);
@@ -896,13 +889,6 @@ export class LyricRenderer {
         this.cachedAlphaKeys[i] = alphaKey;
         lineEl.style.setProperty("--ba", brightStr);
         lineEl.style.setProperty("--da", darkStr);
-      }
-      const pass = isPassed ? 0.0001 : 1;
-      this.passValues[i] = pass;
-      const passKey = pass.toFixed(3);
-      if (this.cachedPassKeys[i] !== passKey) {
-        this.cachedPassKeys[i] = passKey;
-        lineEl.style.setProperty("--pass", passKey);
       }
     }
     // 副行展开量瞬移（隐藏/冻结恢复、热重构时避免让位过渡）
@@ -1252,20 +1238,6 @@ export class LyricRenderer {
         const lineEl = this.lineElements[i];
         lineEl.style.setProperty("--ba", brightStr);
         lineEl.style.setProperty("--da", darkStr);
-      }
-
-      // pass：已播放行淡出
-      if (doPass || this.passValues[i] < 0.999) {
-        const targetPass = isPassed ? 0.0001 : 1;
-        let passValue = this.passValues[i];
-        if (Math.abs(targetPass - passValue) < 0.001) passValue = targetPass;
-        else passValue += (targetPass - passValue) * releaseFactor;
-        this.passValues[i] = passValue;
-        const passKey = passValue.toFixed(3);
-        if (this.cachedPassKeys[i] !== passKey) {
-          this.cachedPassKeys[i] = passKey;
-          this.lineElements[i].style.setProperty("--pass", passKey);
-        }
       }
 
       // blur：逐行模糊，距激活行越远越模糊

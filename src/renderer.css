@@ -118,11 +118,7 @@
   font-size: var(--lp-sub-font-size, max(0.5em, 10px));
   line-height: var(--lp-sub-line-height, 1.5em);
   color: var(--lp-sub-color, inherit);
-  opacity: var(--lp-sub-inactive-opacity, var(--da, 0.2));
-}
-
-.lp-line.active .lp-sub {
-  opacity: var(--lp-sub-active-opacity, var(--lp-sub-opacity, 0.35));
+  opacity: var(--lp-sub-opacity, var(--da, 0.2));
 }
 
 /* ---- 间奏圆点 ---- */

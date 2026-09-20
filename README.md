@@ -183,7 +183,7 @@ All styling is configured through CSS custom properties with built-in fallbacks:
 | `--lp-hover-bg`          | `color-mix(...)`        | Background color when hovering over a clickable line.      |
 | `--lp-sub-font-size`     | `max(0.5em, 10px)`      | Font size for translation and romanization sub-text.       |
 | `--lp-sub-line-height`   | `1.5em`                 | Line height for translation and romanization sub-text.     |
-| `--lp-sub-opacity`       | `0.3`                   | Base opacity for translation and romanization sub-text.    |
+| `--lp-sub-opacity`       | `0.2`                   | Base opacity for translation and romanization sub-text (follows `inactiveAlpha`, incl. passed-line fading, when unset). |
 | `--lp-sub-color`         | `inherit`               | Color for translation and romanization sub-text.           |
 | `--lp-dot-size`          | `0.45em`                | Diameter of interlude breathing dots.                      |
 | `--lp-credit-opacity`    | `0.3`                   | Opacity for bottom song credits container.                 |

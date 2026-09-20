@@ -183,7 +183,7 @@ renderer.setLyrics(applyScrollPreroll(rawLines));
 | `--lp-hover-bg` | `color-mix(...)` | 鼠标悬停在可点击行时的胶囊高亮背景颜色。 |
 | `--lp-sub-font-size` | `max(0.5em, 10px)` | 翻译与罗马音副歌词字体大小。 |
 | `--lp-sub-line-height` | `1.5em` | 翻译与罗马音副歌词行高。 |
-| `--lp-sub-opacity` | `0.3` | 翻译与罗马音副歌词基础透明度。 |
+| `--lp-sub-opacity` | `0.2` | 翻译与罗马音副歌词基础透明度（未设置时跟随 `inactiveAlpha`，含已播行淡出）。 |
 | `--lp-sub-color` | `inherit` | 翻译与罗马音副歌词文本颜色。 |
 | `--lp-dot-size` | `0.45em` | 间奏呼吸圆点的直径大小。 |
 | `--lp-credit-opacity` | `0.3` | 底部演职员信息行的透明度。 |
