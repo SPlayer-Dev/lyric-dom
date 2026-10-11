@@ -511,6 +511,7 @@ export class LyricRenderer {
    */
   private applyConfig = (config: Partial<RendererConfig>) => {
     let layoutDirty = false;
+    let alignmentChanged = false;
     let playbackChanged = false;
     let animationOptionsChanged = false;
     if (config.alignPosition != null && config.alignPosition !== this.alignPosition) {
@@ -520,6 +521,8 @@ export class LyricRenderer {
     if (config.alignment != null && config.alignment !== this.alignment) {
       this.alignment = config.alignment;
       this.syncAlignmentClass();
+      alignmentChanged = true;
+      layoutDirty = true;
     }
     if (config.playing != null && config.playing !== this.isPlaying) {
       this.isPlaying = config.playing;
@@ -635,6 +638,9 @@ export class LyricRenderer {
 
     if (layoutDirty && this.lineElements.length > 0) {
       this.measureLineHeights();
+      if (alignmentChanged) {
+        measureAndApplyWordMasks(this.wordMeasurements, this.wordFadeWidth, this.lines);
+      }
       this.calculateLayout(false);
       this.needsFullSync = true;
     }
