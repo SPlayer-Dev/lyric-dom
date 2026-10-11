@@ -163,6 +163,12 @@
     vertical-align: bottom;
   }
 
+  /* 注音可悬挂到相邻假名时（判定见 engine/ruby-layout.ts），用负外边距回收注音
+     撑开的行内宽度，回收量在构建期按字符数以 em 估算写入 */
+  & > span.lp-ruby-word {
+    margin-inline: calc(-0.5 * var(--lp-ruby-overflow, 0em));
+  }
+
   ruby {
     ruby-position: over;
     ruby-align: center;

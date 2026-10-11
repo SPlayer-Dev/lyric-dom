@@ -3,6 +3,7 @@
 import type { LyricLine, LyricSpan, LyricWord, WordAnimTarget, WordMeasurement } from "../types";
 import { chunkAndSplitLyricWords, needsSpaceBetween } from "../utils/split-words";
 import { shouldChunkEmphasize } from "./emphasize";
+import { resolveRubyReclaimMap } from "./ruby-layout";
 
 export type { WordAnimTarget, WordMeasurement };
 
@@ -43,6 +44,7 @@ export const buildWordSpans = (
     showWordRoman = false,
   } = options;
   const chunks = chunkAndSplitLyricWords(words);
+  const rubyReclaim = resolveRubyReclaimMap(chunks);
   const measurements: WordMeasurement[] = [];
   const animTargets: WordAnimTarget[] = [];
 
@@ -83,6 +85,7 @@ export const buildWordSpans = (
       const lastAtom = atoms[atoms.length - 1];
       if (lastAtom) previousText = lastAtom.word.trim();
     }
+    applyRubyReclaim(measurements, rubyReclaim);
     return { measurements, animTargets };
   }
 
@@ -144,7 +147,20 @@ export const buildWordSpans = (
       }
     }
   }
+  applyRubyReclaim(measurements, rubyReclaim);
   return { measurements, animTargets };
+};
+
+/**
+ * 把注音悬挂的回收量写到单词 span 上，供 renderer.css 的负外边距取用
+ * @param measurements - 已构建的单词测量数据
+ * @param rubyReclaim - 可回收单词到回收量（em）的映射
+ */
+const applyRubyReclaim = (measurements: WordMeasurement[], rubyReclaim: Map<LyricWord, number>) => {
+  for (const m of measurements) {
+    const reclaim = rubyReclaim.get(m.word);
+    if (reclaim) m.element.style.setProperty("--lp-ruby-overflow", `${reclaim.toFixed(2)}em`);
+  }
 };
 
 /**
@@ -187,6 +203,7 @@ const appendWordSpan = (
   } else {
     if (ruby?.length) {
       buildRubyContent(span, word.word, ruby);
+      span.classList.add("lp-ruby-word");
     } else {
       span.textContent = word.word;
     }
