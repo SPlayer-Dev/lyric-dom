@@ -159,7 +159,8 @@
   & > span {
     display: inline-block;
     white-space: pre-wrap;
-    vertical-align: middle;
+    /* 按底边对齐：带 ruby 的单词盒子会被注音撑高，middle 会使其基线下沉 */
+    vertical-align: bottom;
   }
 
   ruby {
