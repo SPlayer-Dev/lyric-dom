@@ -3,6 +3,7 @@
 import type { LyricLine, LyricSpan, LyricWord, WordAnimTarget, WordMeasurement } from "../types";
 import { chunkAndSplitLyricWords, needsSpaceBetween } from "../utils/split-words";
 import { shouldChunkEmphasize } from "./emphasize";
+import { applyRubySpacing } from "./ruby-layout";
 
 export type { WordAnimTarget, WordMeasurement };
 
@@ -187,6 +188,7 @@ const appendWordSpan = (
   } else {
     if (ruby?.length) {
       buildRubyContent(span, word.word, ruby);
+      span.classList.add("lp-ruby-word");
     } else {
       span.textContent = word.word;
     }
@@ -314,6 +316,8 @@ export const measureAndApplyWordMasks = (
   fadeRatio: number,
   lines?: LyricLine[],
 ) => {
+  applyRubySpacing(wordMeasurements);
+
   // 临时存储每个 measurement 的 padding，供第二遍使用
   const paddings: number[][] = new Array(wordMeasurements.length);
 

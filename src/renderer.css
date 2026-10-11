@@ -163,6 +163,11 @@
     vertical-align: bottom;
   }
 
+  /* 假名宽于被注音文字时，用负外边距回收假名挤占的行内宽度，溢出量由测量写入 */
+  & > span.lp-ruby-word {
+    margin-inline: calc(-0.5 * var(--lp-ruby-overflow, 0px));
+  }
+
   ruby {
     ruby-position: over;
     ruby-align: center;
