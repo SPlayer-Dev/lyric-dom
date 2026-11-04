@@ -42,9 +42,13 @@ const makeAtom = (
 /**
  * 将歌词单词重新分组：CJK 字符逐字拆分，并通过 Intl.Segmenter 按语言词边界合并
  * @param words - 原始歌词单词数组
+ * @param preserveRomanWords - 是否保留带逐词音译的原始词边界
  * @returns 分组后的单词或单词组数组
  */
-export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricWord[])[] => {
+export const chunkAndSplitLyricWords = (
+  words: LyricWord[],
+  preserveRomanWords = false,
+): (LyricWord | LyricWord[])[] => {
   const atoms: LyricWord[] = [];
 
   for (const w of words) {
@@ -54,7 +58,11 @@ export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricW
     const emptyBeat = w.emptyBeat;
 
     // 空白或含 ruby 注音的单词直接保留
-    if (content.length === 0 || (w.ruby?.length ?? 0) > 0) {
+    if (
+      content.length === 0 ||
+      (w.ruby?.length ?? 0) > 0 ||
+      (preserveRomanWords && romanWord.trim())
+    ) {
       atoms.push({ ...w });
       continue;
     }
