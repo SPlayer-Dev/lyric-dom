@@ -119,13 +119,17 @@ export const buildLineElements = (
     const line = lines[i];
     if (!line) continue;
 
-    // 逐字音译 / 行音译 判定（背景行共用同一套规则）
-    // 单词本身包含空白时，它更可能是整句/多 token 文本，romanWord 应按行级处理，
-    // 否则 chunkAndSplitLyricWords 会把同一个 romanWord 复制给每个 token。
-    const hasWordRoman = line.words.some(
-      (w) => Boolean(w.romanWord?.trim()) && !/\s/.test(w.word.trim()),
-    );
-    const showWordRomanForLine = options.showWordRomanization && hasWordRoman;
+    // 旧版解析器会把行音译同时写入唯一词的 romanWord。
+    const firstWord = line.words[0];
+    const lineRoman = line.romanLyric.trim();
+    const hasDuplicateLineRoman =
+      line.words.length === 1 &&
+      Boolean(lineRoman) &&
+      firstWord.romanWord?.trim() === lineRoman &&
+      /\s/.test(firstWord.word.trim());
+    const hasWordRoman = line.words.some((word) => Boolean(word.romanWord?.trim()));
+    const showWordRomanForLine =
+      options.showWordRomanization && hasWordRoman && !hasDuplicateLineRoman;
     const showLineRomanForLine =
       options.showRomanization && Boolean(line.romanLyric) && !showWordRomanForLine;
     const isStatic =

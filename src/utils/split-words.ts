@@ -42,27 +42,32 @@ const makeAtom = (
 /**
  * 将歌词单词重新分组：CJK 字符逐字拆分，并通过 Intl.Segmenter 按语言词边界合并
  * @param words - 原始歌词单词数组
+ * @param preserveRomanWords - 是否保留带逐词音译的原始词边界
  * @returns 分组后的单词或单词组数组
  */
-export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricWord[])[] => {
+export const chunkAndSplitLyricWords = (
+  words: LyricWord[],
+  preserveRomanWords = false,
+): (LyricWord | LyricWord[])[] => {
   const atoms: LyricWord[] = [];
 
   for (const w of words) {
     const content = w.word.trim();
+    const romanWord = w.romanWord ?? "";
     const obscene = w.obscene ?? false;
     const emptyBeat = w.emptyBeat;
 
     // 空白或含 ruby 注音的单词直接保留
-    if (content.length === 0 || (w.ruby?.length ?? 0) > 0) {
+    if (
+      content.length === 0 ||
+      (w.ruby?.length ?? 0) > 0 ||
+      (preserveRomanWords && romanWord.trim())
+    ) {
       atoms.push({ ...w });
       continue;
     }
 
     const parts = w.word.split(/(\s+)/).filter((p) => p.length > 0);
-    const isMultiToken = parts.filter((p) => p.trim()).length > 1;
-    // 一个 word 里含多个空格分隔 token 时，romanWord 属于整句而不是每个 token，
-    // 不能复制给所有 part，否则逐词音译会重复显示整句。
-    const romanWord = isMultiToken ? "" : (w.romanWord ?? "");
     const totalLen = w.word.replace(/\s/g, "").length || 1;
     const duration = w.endTime - w.startTime;
     let offset = 0;

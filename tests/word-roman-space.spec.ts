@@ -1,6 +1,6 @@
+import { parseLyric } from "lyric-kit";
 import { describe, expect, it } from "vitest";
 import { LyricRenderer } from "../src";
-import { parseLyric } from "lyric-kit";
 import type { LyricLine } from "../src/types";
 
 const renderLine = (line: LyricLine) => {
@@ -102,9 +102,6 @@ describe("word romanization with spaces", () => {
     });
     const line = parsed.lines[0];
 
-    // 先确认 lyric-kit 侧确实把整句 romaji 写进了 word.romanWord
-    expect(line.words[0].romanWord).toBe("u ri ga man deun LOVE SCENARIO");
-
     const { container, renderer } = renderLine(line);
 
     expect(container.querySelector(".lp-main")?.textContent).toBe("우리가 만든 LOVE SCENARIO");
@@ -117,4 +114,23 @@ describe("word romanization with spaces", () => {
     renderer.dispose();
   });
 
+  it("renders an annotated phrase once without a line-level fallback", () => {
+    const { container, renderer } = renderLine({
+      startTime: 0,
+      endTime: 4000,
+      words: [
+        { startTime: 0, endTime: 2000, word: "hello world ", romanWord: "hello world" },
+        { startTime: 2000, endTime: 4000, word: "again", romanWord: "again" },
+      ],
+      translatedLyric: "",
+      romanLyric: "",
+      isBG: false,
+      isDuet: false,
+    });
+
+    expect(
+      Array.from(container.querySelectorAll(".lp-roman-word"), (el) => el.textContent),
+    ).toEqual(["hello world", "again"]);
+    renderer.dispose();
+  });
 });

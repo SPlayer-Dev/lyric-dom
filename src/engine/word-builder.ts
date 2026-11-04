@@ -42,7 +42,7 @@ export const buildWordSpans = (
     showRuby,
     showWordRoman = false,
   } = options;
-  const chunks = chunkAndSplitLyricWords(words);
+  const chunks = chunkAndSplitLyricWords(words, showWordRoman);
   const measurements: WordMeasurement[] = [];
   const animTargets: WordAnimTarget[] = [];
 
