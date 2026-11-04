@@ -49,7 +49,6 @@ export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricW
 
   for (const w of words) {
     const content = w.word.trim();
-    const romanWord = w.romanWord ?? "";
     const obscene = w.obscene ?? false;
     const emptyBeat = w.emptyBeat;
 
@@ -60,6 +59,10 @@ export const chunkAndSplitLyricWords = (words: LyricWord[]): (LyricWord | LyricW
     }
 
     const parts = w.word.split(/(\s+)/).filter((p) => p.length > 0);
+    const isMultiToken = parts.filter((p) => p.trim()).length > 1;
+    // 一个 word 里含多个空格分隔 token 时，romanWord 属于整句而不是每个 token，
+    // 不能复制给所有 part，否则逐词音译会重复显示整句。
+    const romanWord = isMultiToken ? "" : (w.romanWord ?? "");
     const totalLen = w.word.replace(/\s/g, "").length || 1;
     const duration = w.endTime - w.startTime;
     let offset = 0;
