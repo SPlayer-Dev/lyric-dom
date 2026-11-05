@@ -44,6 +44,7 @@ const buildMainLayer = (
   showWordRoman: boolean,
 ): { measurements: WordMeasurement[]; animTargets: WordAnimTarget[] } => {
   if (isStatic) {
+    mainDiv.classList.add("lp-static");
     mainDiv.appendChild(document.createTextNode(line.words.map((w) => w.word).join("")));
     // 静态行也加统一 mask，让 --ba 对其生效，与逐字行透明度一致
     mainDiv.style.setProperty(

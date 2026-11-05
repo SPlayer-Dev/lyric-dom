@@ -84,6 +84,7 @@
 
 .lp-content {
   position: relative;
+  display: flow-root;
   width: fit-content;
   max-width: 100%;
 
@@ -154,12 +155,22 @@
   pointer-events: auto;
   overflow: visible;
   line-height: var(--lp-line-height, 1.25);
+  padding-block: 0.4em;
+  margin-block: -0.4em;
+
+  /* 静态整行遮罩在边框盒内绘制，横向同样留出字形溢出缓冲 */
+  &.lp-static {
+    padding-inline: 0.4em;
+    margin-inline: -0.4em;
+  }
 
   & > span {
     display: inline-block;
     white-space: pre-wrap;
     /* 按底边对齐：带 ruby 的单词盒子会被注音撑高，middle 会使其基线下沉 */
     vertical-align: bottom;
+    padding: 1em;
+    margin: -1em;
   }
 
   ruby {
@@ -181,10 +192,10 @@
     align-items: center;
     vertical-align: bottom;
     text-align: center;
-    margin-inline-end: var(--lp-word-roman-gap, 0.3em);
+    margin-inline-end: calc(var(--lp-word-roman-gap, 0.3em) - 1em);
 
     &:last-child {
-      margin-inline-end: 0;
+      margin-inline-end: -1em;
     }
 
     &:first-child {

@@ -139,8 +139,9 @@ describe("长音强调辉光", () => {
       },
     ]);
 
-    expect(element.style.maskPosition).toContain("clamp(-100px");
-    expect(element.style.maskPosition).toContain(",10px)");
+    expect(element.style.maskPosition).toContain("clamp(-110px");
+    expect(element.style.maskPosition).toContain(",0px)");
+    expect(element.style.maskSize).toContain("230px");
     computedStyle.mockRestore();
   });
 });

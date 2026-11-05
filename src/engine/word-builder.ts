@@ -328,9 +328,7 @@ export const measureAndApplyWordMasks = (
     for (let j = 0; j < lineMeasurements.length; j++) {
       const m = lineMeasurements[j];
       const el = m.element;
-      const padding = el.classList.contains("lp-emp-wrapper")
-        ? Number.parseFloat(getComputedStyle(el).paddingLeft) || 0
-        : 0;
+      const padding = Number.parseFloat(getComputedStyle(el).paddingLeft) || 0;
       paddings[i][j] = padding;
       m.width = (el.clientWidth || 1) - padding * 2;
       m.fadeWidth = ((el.clientHeight || 16) - padding * 2) * fadeRatio;
@@ -347,11 +345,15 @@ export const measureAndApplyWordMasks = (
       const padding = paddings[i][j];
       const elementWidth = measurement.width;
       const gradientWidth = measurement.fadeWidth;
-      const totalAspect = 2 + gradientWidth / elementWidth;
-      const gradientRatio = gradientWidth / elementWidth / totalAspect;
+      // 遮罩图向内容两侧各扩出 padding，覆盖 span 的边框盒
+      const maskPixelWidth = elementWidth * 2 + gradientWidth + padding * 2;
+      const gradientRatio = gradientWidth / maskPixelWidth;
       const gradientStart = (1 - gradientRatio) / 2;
-      const maskImage = `linear-gradient(to right,rgba(0,0,0,var(--ba)) ${gradientStart * 100}%,rgba(0,0,0,var(--da)) ${(gradientStart + gradientRatio) * 100}%)`;
-      const maskPixelWidth = totalAspect * elementWidth;
+      // 渐变末端留出字形负左侧边距的平台，避免未播放的词钩尖被渐变带提前提亮
+      const plateauWidth = Math.min(padding * 0.15, gradientWidth * 0.5);
+      const plateauRatio = gradientWidth > 0 ? plateauWidth / gradientWidth : 0;
+      const gradientEnd = gradientStart + gradientRatio * (1 - plateauRatio);
+      const maskImage = `linear-gradient(to right,rgba(0,0,0,var(--ba)) ${gradientStart * 100}%,rgba(0,0,0,var(--da)) ${gradientEnd * 100}%)`;
       const maskSize = `${maskPixelWidth}px 100%`;
       const wordData = measurement.word;
       const totalMaskWidth = elementWidth + gradientWidth;
@@ -363,8 +365,8 @@ export const measureAndApplyWordMasks = (
         Math.max(lineStart, wordData.startTime - preRoll),
       );
       const adjustedDuration = Math.max(1, wordData.endTime - adjustedStart);
-      const startPos = padding - totalMaskWidth;
-      const endPos = padding;
+      const startPos = -totalMaskWidth;
+      const endPos = 0;
       const speed = totalMaskWidth / adjustedDuration;
       const maskPosition = Number.isFinite(speed)
         ? `clamp(${startPos}px,calc(${startPos}px + (var(--t,${lineStart}) - ${adjustedStart}) * ${speed}px),${endPos}px) 0px,left top`
